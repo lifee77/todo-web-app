@@ -97,18 +97,24 @@ Watch a [demo video here](#need to add link). The demo walks through the followi
 
 ## Code Structure
 
-- **`/app.py`**: The main Flask application file.
-- **`/static/`**: Contains CSS and JavaScript for styling and interaction.
-- **`/templates/`**: HTML files (if using Flask).
-- **`/models.py`**: Defines the database models (Flask).
-- **`/routes.py`** or **`/controllers/`**: Handles the routes for list and task operations.
-- **`README.md`**: This documentation file.
+```plaintext
+hierarchical-todo-app/
+├── backend/ (Flask)
+│   ├── app.py
+│   ├── models.py
+│   ├── routes.py
+│   ├── config.py
+│   └── requirements.txt
+└── frontend/ (React)
+    ├── public/
+    ├── src/
+    │   ├── components/
+    │   ├── services/ (to handle API calls)
+    │   ├── App.js
+    │   └── index.js
+    └── package.json
 
-## Best Practices
 
-- Comment your code extensively to explain the purpose of key sections.
-- Organize your files clearly to separate concerns (backend, frontend, database).
-- Ensure the app works properly in different environments by testing across macOS and Windows.
 
 ## Known Issues
 
