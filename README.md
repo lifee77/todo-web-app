@@ -113,7 +113,7 @@ hierarchical-todo-app/
     │   ├── App.js
     │   └── index.js
     └── package.json
-
+```
 
 
 ## Known Issues

@@ -1,0 +1,17 @@
+.App {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  
+  .task-list-section, .task-section {
+    margin-top: 20px;
+  }
+  
+  .task-item {
+    margin-left: 20px;
+  }
+  
+  .subtasks {
+    margin-left: 20px;
+  }
+  
