@@ -1,14 +1,15 @@
-# seed.py
 from app import create_app
 from models import db, TaskList, Task
-
-app = create_app()
+from sqlalchemy import text  # Import text from SQLAlchemy
 
 def seed_data():
+    app = create_app()
+    
     with app.app_context():
-        # Clear existing data
-        Task.query.delete()
-        TaskList.query.delete()
+        # Delete existing data using the text() construct
+        db.session.execute(text('DELETE FROM task'))
+        db.session.execute(text('DELETE FROM task_list'))
+        db.session.commit()
         
         # Create lists
         work_list = TaskList(name="Work Tasks")

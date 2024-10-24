@@ -3,9 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 from config import Config
+from models import db
 
 
-db = SQLAlchemy()
 migrate = Migrate()
 
 def create_app():
@@ -17,8 +17,8 @@ def create_app():
     migrate.init_app(app, db)
 
     # Enable CORS for all routes and allow requests from http://localhost:3000
-    CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"], "methods": ["GET", "POST", "PUT", "DELETE"], "allow_headers": ["Content-Type"]}})
-
+    #CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"], "methods": ["GET", "POST", "PUT", "DELETE"], "allow_headers": ["Content-Type"]}})
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
     # Import routes after db initialization
     from routes import main
     app.register_blueprint(main)
