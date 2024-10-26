@@ -3,10 +3,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 from config import Config
-from models import db
+from flask_login import LoginManager
+from models import db, User
 
 
 migrate = Migrate()
+login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__)
@@ -15,10 +17,12 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
+    login_manager.init_app(app)
+    login_manager.login_view = 'main.login'
 
     # Enable CORS for all routes and allow requests from http://localhost:3000
-    #CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"], "methods": ["GET", "POST", "PUT", "DELETE"], "allow_headers": ["Content-Type"]}})
     CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
+
     # Import routes after db initialization
     from routes import main
     app.register_blueprint(main)
@@ -33,6 +37,10 @@ def create_app():
         return jsonify({"message": "Welcome to the Hierarchical Todo List App!"})
 
     return app
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 if __name__ == '__main__':
     app = create_app()        
