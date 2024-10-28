@@ -1,10 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin #To use login_user, logout_user, current_user
 
 db = SQLAlchemy()
-
-#To set and chekc password
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -33,11 +31,15 @@ class Task(db.Model):
     title = db.Column(db.String(200), nullable=False)
     completed = db.Column(db.Boolean, default=False)
     list_id = db.Column(db.Integer, db.ForeignKey('task_list.id'), nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=True)
+    children = db.relationship('Task', backref=db.backref('parent', remote_side=[id]), lazy=True)
     
     def as_dict(self):
         return {
             'id': self.id,
             'title': self.title,
             'completed': self.completed,
-            'list_id': self.list_id
+            'list_id': self.list_id,
+            'parent_id': self.parent_id,
+            'children': [child.as_dict() for child in self.children]
         }

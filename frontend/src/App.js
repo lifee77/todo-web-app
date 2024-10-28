@@ -1,97 +1,120 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { fetchLists, fetchTasks } from './services/api';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
-
-// Configure axios defaults
-axios.defaults.baseURL = 'http://127.0.0.1:5000';
-axios.defaults.withCredentials = true;
-axios.defaults.headers.common['Content-Type'] = 'application/json';
+import Login from './components/Login';
+import Register from './components/Register';
+import Logout from './components/Logout';
 
 const App = () => {
-  const [lists, setLists] = useState([]);
-  const [selectedList, setSelectedList] = useState(null);
-  const [tasks, setTasks] = useState([]);
-  const [error, setError] = useState(null);  //error state
-  const [loading, setLoading] = useState(true); // Loading state
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [lists, setLists] = useState([]);
+    const [selectedList, setSelectedList] = useState(null);
+    const [tasks, setTasks] = useState([]);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  // Fetch all task lists on load
-  useEffect(() => {
-    const fetchLists = async () => {
-      setLoading(true); // Start loading
-      try {
-        console.log('Fetching lists...');
-        const response = await axios.get('/api/lists');
-        console.log('Response:', response.data);
-        setLists(response.data);
-        setError(null);
-      } catch (err) {
-        console.error('Full error:', err);
-        console.error('Error response:', err.response);
-        console.error('Error message:', err.message);
-        setError(err.response?.data?.message || 'Error fetching task lists');
-        setLists([]);
-      } finally {
-        setLoading(false); // End loading
-      }
+    const handleLogin = () => {
+        setIsAuthenticated(true);
     };
 
-    fetchLists();
-  }, []);
-
-    // Fetch tasks when a list is selected
-    const fetchTasks = async (listId) => {
-      try {
-        const response = await axios.get(`/api/lists/${listId}/tasks`);
-        setTasks(response.data);
-        setSelectedList(listId);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching tasks:', err);
-        setError(err.response?.data?.message || 'Error fetching tasks');
-        setTasks([]);
-      }
+    const handleLogout = () => {
+        setIsAuthenticated(false);
     };
-  
+
+    const handleTaskDeleted = (taskId) => {
+        setTasks(tasks.filter(task => task.id !== taskId));
+    };
+
+    useEffect(() => {
+        const loadLists = async () => {
+            setLoading(true);
+            try {
+                const data = await fetchLists();
+                setLists(data);
+                setError(null);
+            } catch (err) {
+                setError(err.message || 'Error fetching task lists');
+                setLists([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (isAuthenticated) {
+            loadLists();
+        }
+    }, [isAuthenticated]);
+
+    const loadTasks = async (listId) => {
+        try {
+            const data = await fetchTasks(listId);
+            setTasks(data);
+            setSelectedList(listId);
+            setError(null);
+        } catch (err) {
+            setError(err.message || 'Error fetching tasks');
+            setTasks([]);
+        }
+    };
+
     return (
-      <div className="App">
-        <h1>Hierarchical Todo List App</h1>
-        
-        {error && (
-          <div className="error-message" style={{ color: 'red', padding: '10px' }}>
-            {error}
-          </div>
-        )}
-  
-        {loading ? ( // Show loading indicator
-          <p>Loading task lists...</p>
-        ) : (
-          <div className="task-list-section">
-            <h2>Task Lists</h2>
-            {lists.length > 0 ? (
-              lists.map(list => (
-                <div 
-                  key={list.id} 
-                  onClick={() => fetchTasks(list.id)}
-                  style={{ cursor: 'pointer', padding: '5px' }}
-                >
-                  {list.name}
-                </div>
-              ))
-            ) : (
-              <p>No lists available</p>
-            )}
-          </div>
-        )}
-  
-        {selectedList && (
-          <div className="task-section">
-            <TaskForm selectedList={selectedList} setTasks={setTasks} />
-            <TaskList tasks={tasks} setTasks={setTasks} selectedList={selectedList} />
-          </div>
-        )}
-      </div>
+        <Router>
+            <div className="App">
+                <h1>Hierarchical Todo List App</h1>
+                
+                {error && (
+                    <div className="error-message" style={{ color: 'red', padding: '10px' }}>
+                        {error}
+                    </div>
+                )}
+
+                {isAuthenticated && (
+                    <>
+                        {loading ? (
+                            <p>Loading task lists...</p>
+                        ) : (
+                            <div className="task-list-section">
+                                <h2>Task Lists</h2>
+                                {lists.length > 0 ? (
+                                    lists.map(list => (
+                                        <div 
+                                            key={list.id} 
+                                            onClick={() => loadTasks(list.id)}
+                                            style={{ cursor: 'pointer', padding: '5px' }}
+                                        >
+                                            {list.name}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p>No lists available</p>
+                                )}
+                            </div>
+                        )}
+
+                        {selectedList && (
+                            <div className="task-section">
+                                <TaskForm selectedList={selectedList} setTasks={setTasks} />
+                                <TaskList tasks={tasks} setTasks={setTasks} selectedList={selectedList} />
+                            </div>
+                        )}
+                    </>
+                )}
+
+                <Routes>
+                    <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} />
+                    <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register onRegister={handleLogin} />} />
+                    <Route path="/logout" element={isAuthenticated ? <Logout onLogout={handleLogout} /> : <Navigate to="/login" />} />
+                    <Route path="/" element={isAuthenticated ? (
+                        <>
+                            <button onClick={handleLogout}>Logout</button>
+                        </>
+                    ) : <Navigate to="/login" />} />
+                </Routes>
+            </div>
+        </Router>
     );
-  };
-  
-  export default App;
+};
+
+export default App;

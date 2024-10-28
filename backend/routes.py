@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
-from models import db, User
+from models import db, User, Task, TaskList
 
 main = Blueprint('main', __name__)
 
@@ -50,10 +50,8 @@ def logout():
 def get_lists():
     try:
         task_lists = TaskList.query.all()
-        print("Task lists found:", task_lists)  # Add this debug line
         return jsonify([task_list.as_dict() for task_list in task_lists])
     except Exception as e:
-        print("Error in get_lists:", str(e))  # Add this debug line
         return jsonify({"message": str(e)}), 500
 
 # Get tasks for a specific list
@@ -69,11 +67,10 @@ def get_tasks(list_id):
 def add_task(list_id):
     data = request.get_json()
     task_list = TaskList.query.get_or_404(list_id)
-    new_task = Task(description=data['description'], list_id=list_id)
+    new_task = Task(title=data['title'], list_id=list_id, parent_id=data.get('parent_id'))
     db.session.add(new_task)
     db.session.commit()
     return jsonify(new_task.as_dict()), 201
-
 
 # Delete a task
 @main.route('/api/tasks/<int:task_id>', methods=['DELETE'])
@@ -83,3 +80,18 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()
     return jsonify({"message": "Task deleted"}), 200
+
+# Move a task to a different list or change its parent
+@main.route('/api/tasks/<int:task_id>/move', methods=['PUT'])
+@login_required
+def move_task(task_id):
+    data = request.get_json()
+    new_list_id = data.get('newListId')
+    new_parent_id = data.get('newParentId')
+    task = Task.query.get_or_404(task_id)
+    if new_list_id:
+        task.list_id = new_list_id
+    if new_parent_id is not None:
+        task.parent_id = new_parent_id
+    db.session.commit()
+    return jsonify({"message": "Task moved successfully"}), 200

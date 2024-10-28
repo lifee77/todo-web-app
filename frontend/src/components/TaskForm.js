@@ -1,32 +1,40 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { addTask, fetchTasks } from '../services/api';
 
 const TaskForm = ({ selectedList, setTasks }) => {
-  const [title, setTitle] = useState('');
+    const [taskName, setTaskName] = useState('');
+    const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    axios.post(`http://localhost:5000/api/lists/${selectedList}/tasks`, { title })
-      .then(response => {
-        // Refetch tasks after adding a new one
-        axios.get(`http://localhost:5000/api/lists/${selectedList}/tasks`)
-          .then(response => setTasks(response.data));
-        setTitle(''); // Reset form
-      })
-      .catch(error => console.error('Error adding task:', error));
-  };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!selectedList) {
+            setError('No list selected');
+            return;
+        }
+        try {
+            await addTask(selectedList, taskName);
+            const updatedTasks = await fetchTasks(selectedList); // Fetch updated tasks
+            setTasks(updatedTasks); // Update tasks state
+            setTaskName('');
+            setError('');
+        } catch (err) {
+            setError(err.message || 'Error adding task');
+        }
+    };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="New Task"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <button type="submit">Add Task</button>
-    </form>
-  );
+    return (
+        <form onSubmit={handleSubmit}>
+            <h3>Add Task</h3>
+            {error && <p>{error}</p>}
+            <input
+                type="text"
+                placeholder="Task Name"
+                value={taskName}
+                onChange={(e) => setTaskName(e.target.value)}
+            />
+            <button type="submit">Add Task</button>
+        </form>
+    );
 };
 
 export default TaskForm;

@@ -106,11 +106,15 @@ hierarchical-todo-app/
 │   ├── config.py
 │   └── requirements.txt
 └── frontend/ (React)
-    ├── public/
+    ├── public/ index.html
     ├── src/
     │   ├── components/
+    │   │   ├── TaskForm.js
+    │   │   ├── TaskItem.js
+    │   │   └── TaskList.js
     │   ├── services/ (to handle API calls)
     │   ├── App.js
+    │   ├── index.css
     │   └── index.js
     └── package.json
 ```
