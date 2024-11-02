@@ -104,15 +104,20 @@ hierarchical-todo-app/
 │   ├── models.py
 │   ├── routes.py
 │   ├── config.py
-│   └── requirements.txt
+│   ├── requirements.txt
+|   └── seed.py
 └── frontend/ (React)
     ├── public/ index.html
     ├── src/
     │   ├── components/
+    |   |   ├── Login.js
+    |   |   ├── Logout.js
+    |   |   ├── Register.js
+    |   |   ├── Task.js
     │   │   ├── TaskForm.js
     │   │   ├── TaskItem.js
     │   │   └── TaskList.js
-    │   ├── services/ (to handle API calls)
+    │   ├── services/api.js
     │   ├── App.js
     │   ├── index.css
     │   └── index.js

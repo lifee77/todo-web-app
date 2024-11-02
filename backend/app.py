@@ -19,13 +19,15 @@ def create_app():
     migrate.init_app(app, db)
     login_manager.init_app(app)
     login_manager.login_view = 'main.login'
+    login_manager.session_protection = "strong"
 
     # Enable CORS for all routes and allow requests from http://localhost:3000
-    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+
 
     # Import routes after db initialization
     from routes import main
-    app.register_blueprint(main)
+    app.register_blueprint(main, url_prefix='/api')
     
     # Create tables
     with app.app_context():
@@ -35,6 +37,11 @@ def create_app():
     @app.route('/')
     def index():
         return jsonify({"message": "Welcome to the Hierarchical Todo List App!"})
+    
+   # Unauthorized handler
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        return jsonify({'error': 'Unauthorized'}), 401
 
     return app
 
@@ -45,4 +52,3 @@ def load_user(user_id):
 if __name__ == '__main__':
     app = create_app()        
     app.run(debug=True, host='0.0.0.0')
-
