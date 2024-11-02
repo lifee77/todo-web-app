@@ -217,3 +217,14 @@ def move_task(task_id):
     except Exception as e:
         print(f"Error moving task: {str(e)}")  # Log the error for debugging
         return jsonify({'message': str(e)}), 500
+
+# Delete a task list
+@main.route('/api/task-lists/<int:list_id>', methods=['DELETE'])
+def delete_task_list(list_id):
+    task_list = TaskList.query.get(list_id)
+    if not task_list:
+        return jsonify({"error": "Task List not found"}), 404
+    
+    db.session.delete(task_list)
+    db.session.commit()
+    return jsonify({"message": "Task List deleted successfully"}), 200

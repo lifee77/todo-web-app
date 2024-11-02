@@ -42,6 +42,7 @@ class Task(db.Model):
         return {
             'id': self.id,
             'title': self.title,
+            'completed': self.completed,
             'list_id': self.list_id,
             'parent_id': self.parent_id,
             'children': [child.as_dict() for child in self.children]
