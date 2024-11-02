@@ -116,6 +116,8 @@ function App() {
     }
   };
 
+
+
   if (isLoadingAuth) {
     // Wait for authentication check to complete
     return <div>Loading...</div>;
@@ -142,7 +144,6 @@ function App() {
           element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
           <>
-            <button onClick={handleLogout}>Logout</button>
             {loading ? (
               <p>Loading...</p>
             ) : (
@@ -173,6 +174,7 @@ function App() {
                       <p>No tasks available in this list</p> // Message for empty task lists
                     )}
                   </div>
+                  
                 )}
               </>
             )}
@@ -184,6 +186,12 @@ function App() {
         {/* Catch-all Route */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+      <div>
+        {isAuthenticated && (
+          <button className="logout-button" onClick={handleLogout}>Logout</button>
+        )}
+        {error && <p>{error}</p>}
+      </div>
     </div>
   );
 }

@@ -1,17 +1,88 @@
+/* index.css */
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f9f9f9;
+}
+
 .App {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-  }
-  
-  .task-list-section, .task-section {
-    margin-top: 20px;
-  }
-  
-  .task-item {
-    margin-left: 20px;
-  }
-  
-  .subtasks {
-    margin-left: 20px;
-  }
-  
+  max-width: 600px;
+  width: 100%;
+  margin: 20px auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 24px;
+  color: #333;
+}
+
+button {
+  padding: 8px 12px;
+  margin: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #ddd;
+}
+
+.logout-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.task-item {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.task-list {
+  padding: 10px;
+}
+
+input {
+  padding: 5px;
+  margin: 0 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Add this in index.css or a similar global stylesheet */
+.task-item {
+  background-color: #fff;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.task-item:hover {
+  background-color: #f0f0f0;
+}
+
+.task-item:active {
+  background-color: #e0e0e0;
+}

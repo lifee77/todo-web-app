@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { deleteTask, moveTask, fetchLists, updateTaskTitle } from '../services/api';
 import TaskForm from './TaskForm';
 
-const TaskItem = ({ task, setTasks, selectedList }) => {
+const TaskItem = ({ task, setTasks, selectedList, reloadTasks }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showSubtaskForm, setShowSubtaskForm] = useState(false);
   const [showMoveOptions, setShowMoveOptions] = useState(false);
@@ -11,6 +11,7 @@ const TaskItem = ({ task, setTasks, selectedList }) => {
   const [newListId, setNewListId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(task.title);
+  const [isCompleted, setIsCompleted] = useState(task.completed || false); // Initialize with task's completed status
 
   useEffect(() => {
     const loadLists = async () => {
@@ -27,7 +28,7 @@ const TaskItem = ({ task, setTasks, selectedList }) => {
   const handleDelete = async () => {
     try {
       await deleteTask(task.id);
-      setTasks(prevTasks => prevTasks.filter(t => t.id !== task.id));
+      reloadTasks();  // Refresh the task list after deletion
     } catch (err) {
       console.error('Error deleting task:', err);
     }
@@ -36,8 +37,7 @@ const TaskItem = ({ task, setTasks, selectedList }) => {
   const handleMove = async () => {
     try {
       await moveTask(task.id, newListId);
-      // Refresh tasks
-      setTasks(prevTasks => prevTasks.filter(t => t.id !== task.id));
+      reloadTasks();  // Refresh the task list after moving
     } catch (err) {
       console.error('Error moving task:', err);
     }
@@ -46,17 +46,26 @@ const TaskItem = ({ task, setTasks, selectedList }) => {
   const handleEdit = async () => {
     try {
       await updateTaskTitle(task.id, newTitle);
-      setTasks(prevTasks =>
-        prevTasks.map(t => (t.id === task.id ? { ...t, title: newTitle } : t))
-      );
       setIsEditing(false);
+      reloadTasks();  // Refresh the task list after editing
     } catch (err) {
       console.error('Error updating task:', err);
     }
   };
 
+  // New function to mark a task as complete
+  const handleComplete = async () => {
+    try {
+      setIsCompleted(!isCompleted);  // Toggle completed status
+      await updateTaskTitle(task.id, newTitle); // Assuming API has a "completed" field you can update
+      reloadTasks();  // Refresh the task list after marking complete
+    } catch (err) {
+      console.error('Error marking task as complete:', err);
+    }
+  };
+
   return (
-    <div className="task-item">
+    <div className="task-item" style={{ textDecoration: isCompleted ? 'line-through' : 'none', opacity: isCompleted ? 0.5 : 1 }}>
       <div>
         <span onClick={toggleExpand} style={{ cursor: 'pointer' }}>
           {isExpanded ? '[-]' : '[+]'}
@@ -84,12 +93,14 @@ const TaskItem = ({ task, setTasks, selectedList }) => {
         <button onClick={() => setShowMoveOptions(!showMoveOptions)}>
           {showMoveOptions ? 'Cancel' : 'Move'}
         </button>
+        <button onClick={handleComplete}>{isCompleted ? 'Undo Complete' : 'Complete'}</button>
       </div>
       {showSubtaskForm && (
         <TaskForm
           selectedList={selectedList}
           setTasks={setTasks}
           parentTaskId={task.id}
+          reloadTasks={reloadTasks}  // Pass reloadTasks to TaskForm
         />
       )}
       {showMoveOptions && (
@@ -119,6 +130,7 @@ const TaskItem = ({ task, setTasks, selectedList }) => {
               task={subtask}
               setTasks={setTasks}
               selectedList={selectedList}
+              reloadTasks={reloadTasks}  // Pass reloadTasks to child TaskItem
             />
           ))}
         </div>

@@ -24,14 +24,9 @@ def create_app():
     # Enable CORS for all routes and allow requests from http://localhost:3000
     CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 
-
     # Import routes after db initialization
     from routes import main
     app.register_blueprint(main, url_prefix='/api')
-    
-    # Create tables
-    with app.app_context():
-        db.create_all()
 
     # Define root route
     @app.route('/')

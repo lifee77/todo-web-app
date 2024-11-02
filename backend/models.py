@@ -33,6 +33,7 @@ class TaskList(db.Model):
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
+    completed = db.Column(db.Boolean, default=False)  # New field for completion status, won't delete completed files
     list_id = db.Column(db.Integer, db.ForeignKey('task_list.id'), nullable=False)
     parent_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=True)
     children = db.relationship('Task', backref=db.backref('parent', remote_side=[id]), lazy=True)
