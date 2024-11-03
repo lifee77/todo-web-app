@@ -1,4 +1,4 @@
-# centralizing all configuration settings in one place. This makes it easier to manage and update settings across the application.
+# Centralizing all configuration settings in one place. This makes it easier to manage and update settings across the application.
 #Separationofconcerns.
 import os
 from datetime import timedelta
@@ -13,4 +13,4 @@ class Config:
     SESSION_COOKIE_SECURE = False  # Set to True if using HTTPS
     CORS_ORIGINS = ['http://localhost:3000']
     LOGIN_DISABLED = False
-    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1) #Users can stay logged in for 1 hour (even when they refresh)

@@ -10,18 +10,18 @@ import ProtectedRoute from './components/ProtectedRoute';
 import TaskListForm from './components/TaskListForm'; // Import TaskListForm
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true); // Renamed to avoid confusion with 'loading' state
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false); // Loading state for data fetching
-  const [lists, setLists] = useState([]);
-  const [tasks, setTasks] = useState([]);
-  const [selectedList, setSelectedList] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // State to track authentication status
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true); // State to track loading status for authentication check
+  const [error, setError] = useState(null); // State to track errors
+  const [loading, setLoading] = useState(false); // State to track loading status for data fetching
+  const [lists, setLists] = useState([]); // State to store task lists
+  const [tasks, setTasks] = useState([]); // State to store tasks
+  const [selectedList, setSelectedList] = useState(null); // State to track the selected task list
   
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Authentication check effect
+  // Effect to check authentication status on component mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -43,7 +43,7 @@ function App() {
     checkAuth();
   }, []);
 
-  // Load lists function
+  // Function to load task lists
   const loadLists = async () => {
     try {
       setLoading(true);
@@ -57,20 +57,21 @@ function App() {
       setLoading(false);
     }
   };
-    // Function to handle creating a new task list
-    const handleCreateTaskList = async (name) => {
-      try {
-        setLoading(true);
-        setError(null);
-        const newTaskList = await createTaskList(name);
-        setLists([...lists, newTaskList]); // Update the lists state
-      } catch (err) {
-        console.error('Error creating task list:', err);
-        setError('Error creating task list');
-      } finally {
-        setLoading(false);
-      }
-    };
+
+  // Function to handle creating a new task list
+  const handleCreateTaskList = async (name) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const newTaskList = await createTaskList(name);
+      setLists([...lists, newTaskList]); // Update the lists state
+    } catch (err) {
+      console.error('Error creating task list:', err);
+      setError('Error creating task list');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Handle login
   const handleLogin = async () => {
@@ -84,6 +85,7 @@ function App() {
     }
   };
 
+  // Function to load tasks for a specific list
   const loadTasks = async (listId) => {
     try {
       setLoading(true);
@@ -98,7 +100,6 @@ function App() {
       setLoading(false);
     }
   };
-  
 
   // Handle logout
   const handleLogout = async () => {
@@ -115,8 +116,6 @@ function App() {
       setError('Error during logout');
     }
   };
-
-
 
   if (isLoadingAuth) {
     // Wait for authentication check to complete
@@ -142,44 +141,43 @@ function App() {
         <Route
           path="/"
           element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-          <>
-            {loading ? (
-              <p>Loading...</p>
-            ) : (
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
               <>
-                <div className="task-list-section">
-                  <h2>Task Lists</h2>
-                  <TaskListForm onCreate={handleCreateTaskList} /> {/* Include the form here */}
-                  {lists.length > 0 ? (
-                    lists.map(list => (
-                      <div
-                        key={list.id}
-                        onClick={() => loadTasks(list.id)}
-                        style={{ cursor: 'pointer', padding: '5px' }}
-                      >
-                        {list.name}
+                {loading ? (
+                  <p>Loading...</p>
+                ) : (
+                  <>
+                    <div className="task-list-section">
+                      <h2>Task Lists</h2>
+                      <TaskListForm onCreate={handleCreateTaskList} /> {/* Include the form here */}
+                      {lists.length > 0 ? (
+                        lists.map(list => (
+                          <div
+                            key={list.id}
+                            onClick={() => loadTasks(list.id)}
+                            style={{ cursor: 'pointer', padding: '5px' }}
+                          >
+                            {list.name}
+                          </div>
+                        ))
+                      ) : (
+                        <p>No lists available</p>
+                      )}
+                    </div>
+                    {selectedList && (
+                      <div className="task-section">
+                        <TaskForm selectedList={selectedList} setTasks={setTasks} />
+                        {tasks.length > 0 ? (
+                          <TaskList tasks={tasks} setTasks={setTasks} selectedList={selectedList} />
+                        ) : (
+                          <p>No tasks available in this list</p> // Message for empty task lists
+                        )}
                       </div>
-                    ))
-                  ) : (
-                    <p>No lists available</p>
-                  )}
-                </div>
-                {selectedList && (
-                  <div className="task-section">
-                    <TaskForm selectedList={selectedList} setTasks={setTasks} />
-                    {tasks.length > 0 ? (
-                      <TaskList tasks={tasks} setTasks={setTasks} selectedList={selectedList} />
-                    ) : (
-                      <p>No tasks available in this list</p> // Message for empty task lists
                     )}
-                  </div>
-                  
+                  </>
                 )}
               </>
-            )}
-          </>
-        </ProtectedRoute>
+            </ProtectedRoute>
           }
         />
 

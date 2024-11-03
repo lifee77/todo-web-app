@@ -6,15 +6,16 @@ from config import Config
 from flask_login import LoginManager
 from models import db, User
 
-
+# Initialize Flask extensions
 migrate = Migrate()
 login_manager = LoginManager()
 
+# Function to create and configure the Flask application
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Initialize extensions
+    # Initialize extensions with the app instance
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
